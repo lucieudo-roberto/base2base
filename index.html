@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <title> Online base converter </title>
+    <meta charset="utf-8" name="viewport" content="width=device-width"/>
+    <meta name="theme-color" content="#FFD096"/>
+    
+    <style>
+    	*{padding: 0px; margin: 0px;}
+
+@font-face{
+   font-family: "M";
+   src: url("font.ttf");
+}
+
+body{
+   background-color: #D4D4D4;
+   width: 100%;
+   height: 100%;
+   font-family: "M";
+}
+
+
+main{
+    width: 100%;
+    height: 100%;
+}
+
+#win-main{
+    display: block;
+    width: 96%;
+    padding: 2% 2%;
+    margin-top: 7%;
+}
+            
+#h1-title{
+    display: block;
+    width: 100%;
+    padding: 2% 0;
+    text-align: center;
+    font-size: 17pt;
+    margin: 4% 0;
+}
+            
+#types-choose{
+    display: grid;
+    grid-template-columns: 40% 20% 40%;
+    width: 100%;
+    font-size: 15pt;
+}
+            
+#types-choose select{
+    display: block;
+    width: 100%;
+    padding: 8% 0;
+    border-radius: 0px 0px 0 0;
+    border: none;
+    border-bottom: 2px solid #690CAF;
+    margin: 6% 0;
+    background-color: #D4D4D4;
+    outline: none;
+    font-size: 15pt;
+    font-family: "M";
+    color: #919191;
+}
+            
+#types-choose #_toText{
+    width: 100%;
+    display: block;
+    text-align: center;
+    font-size: 15pt;
+    margin-top: 13%;
+    font-family: "M";
+}
+            
+#_user_number{
+    font-size: 15pt;
+    font-weight: normal;
+    display: block;
+    width: 100%;
+    padding: 4% 0;
+    border: none;
+    border-bottom: 2px solid orange;
+    margin: 3% 0 0 0;
+    background-color: #D4D4D4;
+    outline: none;
+    font-family: "M";
+}
+
+#_error-msg{
+    display: block;
+    width: 100%;
+    height: 0px;
+    overflow: hidden;
+    font-size: 13pt;
+    background-color: #FF798A;
+    color: #fff;
+    text-align: center;
+}
+
+
+button{
+    display: block;
+    width: 90%;
+    padding: 4% 0 4% 2%;
+    border-radius: 7px;
+    color: #fff;
+    background-color: #9E6FAA;
+    border: 1px solid #9368AA;
+    margin: 8% 0 10% 4.4%;
+    outline: none;
+}
+            
+#_show_result{
+    display: block;
+    width: 100%;
+    padding: 2% 0;
+    text-align: center;
+    font-size: 14pt;
+    margin: 4% 0;
+}
+
+            
+#_footer{
+    position: absolute;
+    bottom: 0px;
+    margin-top: 6%;
+    display: block;
+    width: 98%;
+    text-align: center;
+    font-size: 15pt;
+    padding: 3% 0 3% 2%;
+}
+            
+._g{
+    display: block;
+    overflow: auto;
+    width: 100%;
+    text-align: center;
+    margin: 10% 0;
+    font-size: 15pt;
+    color: #299D3C;
+}
+
+form{
+    display: block;
+    width: 100%;
+    margin-top: 3%;
+    text-align: center;
+}
+            
+            
+    
+@media(min-width: 720px){
+    main{
+        margin-left: 27.5%;
+        margin-bottom: 10%;
+        width: 45%;
+        height: 100%;
+    }
+}
+       
+    </style>
+    <script>
+    	
+function fix_base_digits(base_xx,_numbers){
+   
+    var _rstd = ( typeof _numbers == "object" ) ? _numbers.join('') : _numbers;
+	  
+	var regExBin = /[^0-1]/g;
+    var regExOct = /[^0-7]/g;
+    var regExDec = /[^0-9]/g;
+    var regExHex = /[^a-fA-F0-9_]/g;
+
+    var check_symbol = {
+		base_02: function(){return _rstd.replace(regExBin,'')},
+	    base_08: function(){return _rstd.replace(regExOct,'')},
+	    base_10: function(){return _rstd.replace(regExDec,'')},
+	    base_16: function(){return _rstd.replace(regExHex,'')}
+    };
+   
+    return check_symbol[base_xx]();
+}
+
+
+
+
+
+function hex_trunc(_digits, _type){
+	
+	var _digits = typeof _digits !== "object"  ? _digits.split() : _digits;
+	var _output = new Array();
+    var _hex_sm = new Array();
+   
+    _hex_sm[10] = 'a'; _hex_sm[11] = 'b';
+    _hex_sm[12] = 'c'; _hex_sm[13] = 'd';
+    _hex_sm[14] = 'e'; _hex_sm[15] = 'f';
+
+    
+    if (_type == 1){
+  
+        for (var index in _digits ){
+        	
+            if (_digits[index] > 9 &&  _digits[index] <= 15 ){
+        	    _digits[index] = _hex_sm[_digits[index]];
+            }
+        }
+        return _digits;
+        
+    }
+    
+    _digits = _digits.join('');
+    
+    	
+    for (var i=0; i < _digits.length; i++){
+    	
+        if (!parseInt(_digits[i])){
+    	    _output.push(_hex_sm.indexOf(_digits[i]));
+        }else{
+            _output.push(_digits[i]);
+        }
+    }
+    
+    return _output.reverse();
+    
+}
+
+
+
+
+function _bin2X(_digits,_base){
+
+	var  _resut_str = new Array();
+    var  _is_hex = (_base == 16)  ? true : false;
+    var  _is_oct = (_base == 8)   ? true : false;
+
+    var _left_zeros = (_is_hex == true) ? 4 : 3; 
+    
+    /*_left_zeros armazena a quantidade de zeros à esquerda
+    nessesários para separação dos grupos de bits. */
+
+    var _new_digits = fix_base_digits("base_02",_digits);
+
+    /* preenchendo zeros à esquerda de a cordo
+     com a base escolhida pelo usuário, 8=: 3 ou 16=:4. */
+     
+    if (_is_hex || _is_oct ) {
+        while (_new_digits.length % _left_zeros ) _new_digits = "0".concat(_new_digits);
+    }
+
+    
+    /* Calculos para a base 16 ou 8 */
+    
+    if (_is_hex == true || _is_oct == true){ 
+        var _pair_control = _new_digits.length/_left_zeros; 
+    	/* calcula a quantidade de pares de bits possíveis. */
+        
+        var _calc_resp = 0;
+        var _expo = 0;
+         var _index_pair   = _new_digits.length-1; // endereço do primeiro elemento de um par de bits
+  
+        for (var _pair = 0; _pair < _pair_control; _pair++){
+			/* roda um loop de acordo com a quantidade de pares.*/       	
+
+       		_calc_resp=0;  
+              
+
+          	 for (var _index = _index_pair; _index > (_index_pair-_left_zeros); _index --){
+                   /*Roda em todo um par de bits, e faz os calculos. */
+           		_calc_resp += (_new_digits[_index] * ( 2 ** _expo));  _expo+=1;
+
+           	}
+
+          	if (_calc_resp > 0 ) _resut_str.push(_calc_resp);  
+          	_expo = 0;
+          	_index_pair -= _left_zeros; 
+            /* move o endereço para o primeiro elemento de outro par de bits*/
+        }
+        
+        _resut_str = hex_trunc(_resut_str,1);
+        return _resut_str.reverse().join('');
+
+    }
+    
+    
+    if (_base == 10 ){
+	    var _expo = 0; var _rstd = 0;
+    
+        for (var i=_new_digits.length; i > 0; i--){
+             _rstd +=( parseInt(_new_digits[i-1]) * ( 2 ** _expo) ); 
+             _expo +=1;
+        }
+    
+        return _rstd;
+    }
+    
+    return _news_digits;
+	
+}
+
+
+
+function _oct2X(_digits, _base){
+    _digits = fix_base_digits("base_08",_digits);
+    
+    var _out = new Array();
+    
+    var _expt = 0; var _rspd = 0;
+   
+   switch(_base){
+   	case 2:
+           for (var i in _digits) _out.push(_dec2X(_digits[i],2));
+           return _out.join('');
+       break;
+       case 10:
+           for (let i=_digits.length-1; i> -1; i--){
+               _rspd += (parseInt(_digits[i])*( 8 ** _expt)); _expt++;
+           } return _rspd.toString();
+       break;
+       case 16:
+          return _dec2X(_oct2X(_digits,10),16);
+       break;
+   };
+}
+
+
+
+
+function _dec2X(_digits, _base){  
+	
+	var _is_hex = (_base == 16 ) ? true : false;
+
+    _digits = fix_base_digits("base_10",_digits);
+    
+    var _out_bits = new Array(); 
+    var _mod = 0;
+    var _quo = parseInt(_digits);
+           
+
+    while (_quo > 0){
+        _mod =(_quo % _base);
+        _quo = Math.trunc(_quo / _base);
+        _out_bits.push(_mod);
+    }
+
+    if (_is_hex==true) { 
+    
+        _out_bits = hex_trunc(_out_bits,1);
+        
+        return _out_bits.reverse().join('');
+    }else{
+    	if (_out_bits.length <= 1){
+    	    _out_bits.push("0");
+    	}
+        return _out_bits.reverse().join('');
+    }          
+}
+
+function _hex2X(_digits,_base){
+	
+   
+    _digits = fix_base_digits("base_16",_digits);
+    
+    
+    _digits = hex_trunc(_digits,2);
+    
+    if (_base == 10){
+    	var _expt = 0;
+        var _rspt = 0;
+        
+        for (var index in _digits){
+        	_rspt += (parseInt(_digits[index]) * (16 ** _expt));
+            _expt++;
+        }
+        
+        return _rspt.toString();
+    }
+    
+    if (_base == 2){
+    	var _expt = 0;
+        var _rspt = 0;
+        
+        for (var index in _digits){
+        	_rspt += (parseInt(_digits[index]) * (16 ** _expt));
+            _expt++;
+        }
+        
+        _rspt = _rspt.toString();
+        
+        return _dec2X(_rspt,2);
+    }
+    
+    
+    if (_base == 8){
+    	var _expt = 0;
+        var _rspt = 0;
+        
+        for (var index in _digits){
+        	_rspt += (parseInt(_digits[index]) * (16 ** _expt));
+            _expt++;
+        }
+        
+        _rspt = _rspt.toString();
+        
+        return _dec2X(_rspt,8);
+    }
+    
+    
+    
+    
+}
+
+
+
+function check_user_input_digts(){
+    
+    var _fist_base = document.getElementById("_options0").value;
+    var _user_digt = document.getElementById("_user_number").value;
+    var _erro_msgr = document.getElementById("_error-msg");
+    
+    var _fake_length = fix_base_digits(_fist_base,_user_digt).length;
+    var _real_length = _user_digt.length;
+    
+    if (_real_length != _fake_length){
+        
+        _erro_msgr.style.paddingTop="1.4%";
+        _erro_msgr.style.height = "30px";
+        _erro_msgr.style.transition = "0.2s";
+        
+    }else{
+        _erro_msgr.style.paddingTop="0px";
+        _erro_msgr.style.height = "0px";
+        _erro_msgr.style.transition = "0.2s";
+    }
+   
+}
+
+
+var _expresions = {
+    base_02: function(_n,_b){return _bin2X(_n,_b)},
+    base_08: function(_n,_b){return _oct2X(_n,_b)},
+    base_10: function(_n,_b){return _dec2X(_n,_b)},
+    base_16: function(_n,_b){return _hex2X(_n,_b)}
+}; 
+
+
+
+
+function _conv_str_to_digit(_str){
+    var _base = 2;
+    _base = (_str.localeCompare("base_02")==0) ? 2 : _base;
+    _base = (_str.localeCompare("base_08")==0) ? 8 : _base;
+    _base = (_str.localeCompare("base_10")==0) ? 10: _base;
+    _base = (_str.localeCompare("base_16")==0) ? 16: _base;
+    
+    return _base;
+}
+
+function callAppropriateMethod(){
+   
+   var  _options_one = document.getElementById("_options0");
+   var  _options_tow = document.getElementById("_options1");
+   
+   var  _user_digits = document.getElementById("_user_number");
+   var  _show_resuts = document.getElementById("_text_result");
+   
+   
+   if (_options_one.value == _options_tow.value ) {
+        _options_one.style.color = "#FF7A93";
+        _options_tow.style.color = "#FF7A93";
+        return;
+   }else{
+        
+        var _base = _conv_str_to_digit(_options_tow.value);
+         
+        _options_one.style.color = "#7E7E7E";
+        _options_tow.style.color = "#7E7E7E";
+        
+        var _digits = _user_digits.value.toLowerCase();
+        
+        var _out = _expresions[_options_one.value](_digits,_base);
+        _show_resuts.innerText = _out;
+   }
+}
+
+    </script>
+  
+  </head>
+ 
+  <body>
+    <main>
+      <div id="win-main">
+        
+        <h1 id="h1-title"> converter </h1>
+        <div id="types-choose">
+        
+          <select id="_options0">
+            <option value="base_02">base  2</option>
+            <option value="base_08">base  8</option>
+            <option value="base_10">base 10</option>
+            <option value="base_16" selected>base 16</option>
+          </select>
+          
+          <span id="_toText">para</span>
+          
+          <select id="_options1">
+            <option value="base_02">base  2</option>
+            <option value="base_08">base  8</option>
+            <option value="base_10">base 10</option>
+            <option value="base_16">base 16</option>
+          </select>
+        </div>
+        
+        
+        <input type="text" id="_user_number" placeholder="Número à converter" required maxlength="12" onkeydown="check_user_input_digts()" onkeyup="check_user_input_digts()"/>
+        <h2 id="_error-msg"> Há dígitos inválidos, a correção é opcional.. </h2>
+        <button onclick="callAppropriateMethod()">converter</button>
+        
+        <h1 id="_show_result">Resultado <span class="_g" id="_text_result"></span></h1>
+       </div>
+       
+		<form action="https://www.paypal.com/donate" method="post" target="_top">
+            <input type="hidden" name="cmd" value="_donations" />
+            <input type="hidden" name="business" value="RAHDNB6LGQU3L" />
+            <input type="hidden" name="item_name" value="Doação para comprar um notebook " />
+            <input type="hidden" name="currency_code" value="BRL" />
+            <input type="image" src="https://www.paypalobjects.com/pt_BR/BR/i/btn/btn_donateCC_LG.gif" border="0" name="submit" title="PayPal - The safer, easier way to pay online!" alt="Faça doações com o botão do PayPal" />
+            <img alt="" border="0" src="https://www.paypal.com/pt_BR/i/scr/pixel.gif" width="1" height="1" />
+        </form>
+
+  </main>
+  <footer id="_footer">Lucieudo.roberto@gmail.com</footer>
+</body>
+</html>
